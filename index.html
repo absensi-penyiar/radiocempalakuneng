@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Absensi Penyiar - LPPL Radio Swara Cempala Kuneng</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -77,7 +77,7 @@
       border: 0 !important;
       border-radius: 0 !important;
       box-shadow: none !important;
-      padding: 0 !important; 
+      padding: 0 !important;
     }
     .brand-logo-login-wrap { margin: 0 auto 14px; }
     .brand-logo-header-wrap { min-width: var(--brand-logo-size); }
@@ -113,7 +113,7 @@
 <div id="startLoginGate" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md mx-4 text-center">
     <div class="brand-logo-wrap brand-logo-login-wrap">
-      <img id="startGateLogo" data-brand-logo src="logo.jpeg" alt="Logo Radio" class="brand-logo">
+      <img id="startGateLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
     </div>
     <h2 class="mt-4 text-xl font-black text-slate-900">SWARA CEMPALA KUNENG</h2>
     <p class="text-sm text-slate-500">Sistem Absensi Penyiar</p>
@@ -167,7 +167,7 @@
   <div id="penyiarLoginModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl mx-4 text-center">
       <div class="brand-logo-wrap brand-logo-login-wrap">
-        <img id="penyiarLoginLogo" data-brand-logo src="logo.jpeg" alt="Logo Radio" class="brand-logo">
+        <img id="penyiarLoginLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
       </div>
       <h3 class="font-extrabold text-lg">Login Akun Penyiar</h3>
       <p class="text-xs text-slate-500 mt-1">Gunakan username dan password yang dibuat oleh Admin.</p>
@@ -230,7 +230,7 @@
         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
           <div class="flex items-center gap-3">
             <div class="brand-logo-wrap brand-logo-header-wrap">
-              <img id="displayLogoImg" data-brand-logo src="logo.jpeg" alt="Logo Radio" class="brand-logo">
+              <img id="displayLogoImg" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -617,7 +617,7 @@
               
               <div class="flex items-center gap-4">
                 <div class="w-28 min-h-28 shrink-0 flex items-center justify-center overflow-visible bg-transparent">
-                  <img id="cfgLogoPreview" src="logo.jpeg" alt="Preview Logo" class="block object-contain bg-transparent border-0 shadow-none">
+                  <img id="cfgLogoPreview" src="https://via.placeholder.com/150?text=LOGO" alt="Preview Logo" class="block object-contain bg-transparent border-0 shadow-none">
                 </div>
                 
                 <div class="space-y-2 flex-grow">
@@ -1041,35 +1041,35 @@
     }
 
     function loadLocalConfigs() {
-      const savedSlots = Firebase Firestore.getItem(SLOT_KEY);
+      const savedSlots = localStorage.getItem(SLOT_KEY);
       if (savedSlots) {
         try { slots = JSON.parse(savedSlots); } catch(e) { slots = [...DEFAULT_SLOTS]; }
       }
 
-      const savedUI = Firebase Firestore.getItem(UI_CONFIG_KEY);
+      const savedUI = localStorage.getItem(UI_CONFIG_KEY);
       if (savedUI) {
         try { uiConfig = { ...DEFAULT_UI_CONFIG, ...JSON.parse(savedUI) }; } catch(e) { uiConfig = { ...DEFAULT_UI_CONFIG }; }
       }
 
       // Ambil logo dari versi lama jika pengguna pernah mengunggahnya melalui patch terdahulu.
-      const legacyLogo = Firebase Firestore.getItem('logoStasiunUtama')
-        || Firebase Firestore.getItem('logoStasiunRadio')
-        || Firebase Firestore.getItem('logoLoginRadio');
+      const legacyLogo = localStorage.getItem('logoStasiunUtama')
+        || localStorage.getItem('logoStasiunRadio')
+        || localStorage.getItem('logoLoginRadio');
       if (legacyLogo && (!uiConfig.logoUrl || uiConfig.logoUrl.includes('via.placeholder.com'))) {
         uiConfig.logoUrl = legacyLogo;
       }
 
-      const savedLoc = Firebase Firestore.getItem(LOCATION_CONFIG_KEY);
+      const savedLoc = localStorage.getItem(LOCATION_CONFIG_KEY);
       if (savedLoc) {
         try { locationConfig = { ...DEFAULT_LOCATION_CONFIG, ...JSON.parse(savedLoc) }; } catch(e) { locationConfig = { ...DEFAULT_LOCATION_CONFIG }; }
       }
 
-      const savedMaster = Firebase Firestore.getItem(MASTER_KEY);
+      const savedMaster = localStorage.getItem(MASTER_KEY);
       if (savedMaster) {
         try { penyiarMasterList = JSON.parse(savedMaster); } catch(e) {}
       }
 
-      const savedLocalAttendance = Firebase Firestore.getItem(LOCAL_KEY);
+      const savedLocalAttendance = localStorage.getItem(LOCAL_KEY);
       if (savedLocalAttendance) {
         try { allAttendanceData = JSON.parse(savedLocalAttendance); } catch(e) {}
       }
@@ -1163,7 +1163,7 @@
 
     window.submitAdminPin = function() {
       const inputPin = $('adminPinInput').value;
-      const savedPin = Firebase Firestore.getItem(PIN_KEY) || '1234';
+      const savedPin = localStorage.getItem(PIN_KEY) || '1234';
 
       if (inputPin === savedPin) {
         isAdminLoggedIn = true;
@@ -1358,7 +1358,7 @@
     window.loginPenyiar = function(){
       const u=$('penyiarUsername').value.trim();
       const pw=$('penyiarPassword').value.trim();
-      const akun=JSON.parse(Firebase Firestore.getItem(AKUN_KEY)||'[]');
+      const akun=JSON.parse(localStorage.getItem(AKUN_KEY)||'[]');
       const found=akun.find(a=>a.username===u && a.password===pw && a.aktif!==false);
       if(!found){$('penyiarLoginError').classList.remove('hidden'); return;}
       isPenyiarLoggedIn=true;
@@ -1456,9 +1456,9 @@
           const publicCol = collection(db, 'artifacts', appId, 'public', 'data', 'absensi_penyiar');
           await addDoc(publicCol, newEntry);
         } else {
-          const localData = JSON.parse(Firebase Firestore.getItem(LOCAL_KEY) || '[]');
+          const localData = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
           localData.push({ ...newEntry, id: 'local_' + Date.now() });
-          Firebase Firestore.setItem(LOCAL_KEY, JSON.stringify(localData));
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(localData));
           allAttendanceData = localData;
           renderAll();
         }
@@ -1568,7 +1568,7 @@
 
     function adminCanManageAttendance() {
       return currentRole === 'admin' &&
-        (isAdminLoggedIn || Firebase Firestore.getItem('loggedAdmin') === 'true');
+        (isAdminLoggedIn || localStorage.getItem('loggedAdmin') === 'true');
     }
 
     async function removeAttendanceRecords(records) {
@@ -1584,7 +1584,7 @@
         }
         const removed = new Set(records.map(record => String(record.id)));
         allAttendanceData = allAttendanceData.filter(record => !removed.has(String(record.id)));
-        Firebase Firestore.setItem(LOCAL_KEY, JSON.stringify(allAttendanceData));
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(allAttendanceData));
         renderAll();
         showToast(`${records.length} data absensi berhasil dihapus.`, 'success');
       } catch (error) {
@@ -1699,7 +1699,7 @@
         });
       }
 
-      Firebase Firestore.setItem(MASTER_KEY, JSON.stringify(penyiarMasterList));
+      localStorage.setItem(MASTER_KEY, JSON.stringify(penyiarMasterList));
       closeMasterPenyiarModal();
       renderAll();
       showToast('Data master penyiar berhasil disimpan.', 'success');
@@ -1730,7 +1730,7 @@
         message: 'Apakah Anda yakin ingin menghapus penyiar ini dari daftar master?',
         onConfirm: () => {
           penyiarMasterList = penyiarMasterList.filter(x => x.id !== id);
-          Firebase Firestore.setItem(MASTER_KEY, JSON.stringify(penyiarMasterList));
+          localStorage.setItem(MASTER_KEY, JSON.stringify(penyiarMasterList));
           renderAll();
           showToast('Penyiar berhasil dihapus dari master.', 'success');
         }
@@ -1864,7 +1864,7 @@
         })()
       };
 
-      Firebase Firestore.setItem(UI_CONFIG_KEY, JSON.stringify(uiConfig));
+      localStorage.setItem(UI_CONFIG_KEY, JSON.stringify(uiConfig));
       renderUIConfig();
       showToast('Tampilan mode penyiar & logo berhasil diperbarui!', 'success');
     };
@@ -1901,7 +1901,7 @@
         radius: Number($('cfgRadius').value)
       };
 
-      Firebase Firestore.setItem(LOCATION_CONFIG_KEY, JSON.stringify(locationConfig));
+      localStorage.setItem(LOCATION_CONFIG_KEY, JSON.stringify(locationConfig));
       checkLocationPermission();
       showToast('Zona lokasi absensi berhasil diperbarui!', 'success');
     };
@@ -2152,7 +2152,7 @@
       }
 
       slots = updatedSlots;
-      Firebase Firestore.setItem(SLOT_KEY, JSON.stringify(slots));
+      localStorage.setItem(SLOT_KEY, JSON.stringify(slots));
       initSlotSelect();
       renderAll();
       showToast('Pengaturan jam siaran berhasil disimpan!', 'success');
@@ -2173,7 +2173,7 @@
         return;
       }
 
-      Firebase Firestore.setItem(PIN_KEY, p1);
+      localStorage.setItem(PIN_KEY, p1);
       $('newPinInput').value = '';
       $('confirmPinInput').value = '';
       showToast('PIN Admin berhasil diperbarui!', 'success');
@@ -2230,13 +2230,10 @@
     checkLocationPermission();
   
 
-     function getAkunPenyiar(){
- return JSON.parse(Firebase Firestore.getItem(AKUN_KEY))||[];
-}
-
-function saveAkunPenyiar(a){
- Firebase Firestore.setItem(AKUN_KEY,JSON.stringify(a));
-}
+    const AKUN_KEY = 'akun_penyiar_rsc_v1';
+    function getAkunPenyiar(){ try{return JSON.parse(localStorage.getItem(AKUN_KEY))||[];}catch(e){return [];} }
+    function saveAkunPenyiar(a){localStorage.setItem(AKUN_KEY,JSON.stringify(a));}
+    window.renderAkunPenyiar=function(){
       const box=$('akunPenyiarList'); if(!box)return;
       const akun=getAkunPenyiar();
       box.innerHTML=penyiarMasterList.map((p,i)=>{
@@ -2283,12 +2280,12 @@ background:#f8fafc;border:1px solid #e2e8f0;
 <script>
 /* GOLDMASTER ACCOUNT SYSTEM */
 
-let adminAccounts = JSON.parse(Firebase Firestore.getItem('adminAccounts') || 
+let adminAccounts = JSON.parse(localStorage.getItem('adminAccounts') || 
 '[{"nama":"Administrator","username":"admin","password":"admin"}]');
 
 function goldmasterLogout(){
-    Firebase Firestore.removeItem('loggedPenyiar');
-    Firebase Firestore.removeItem('loggedAdmin');
+    localStorage.removeItem('loggedPenyiar');
+    localStorage.removeItem('loggedAdmin');
     location.reload();
 }
 
@@ -2302,14 +2299,14 @@ function saveAdminAccount(nama,username,password){
         return;
     }
     adminAccounts.push({nama,username,password});
-    Firebase Firestore.setItem('adminAccounts',JSON.stringify(adminAccounts));
+    localStorage.setItem('adminAccounts',JSON.stringify(adminAccounts));
     alert("Akun admin berhasil dibuat");
 }
 
 function loginAdminAccount(username,password){
     let akun=adminAccounts.find(a=>a.username===username && a.password===password);
     if(akun){
-        Firebase Firestore.setItem('loggedAdmin',JSON.stringify(akun));
+        localStorage.setItem('loggedAdmin',JSON.stringify(akun));
         return true;
     }
     return false;
@@ -2337,7 +2334,7 @@ window.addEventListener('load',()=>{
 <div id="adminLoginModalFinal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
     <div class="brand-logo-wrap brand-logo-login-wrap">
-      <img id="adminLoginLogo" data-brand-logo src="logo.jpeg" alt="Logo Radio" class="brand-logo">
+      <img id="adminLoginLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
     </div>
 
     <h2 class="mt-4 text-xl font-black text-slate-900">Login Akun Admin</h2>
@@ -2370,8 +2367,8 @@ function loginAdminFinal(){
     const pass = document.getElementById('finalAdminPassword').value.trim();
 
     if(user === 'admin' && pass === 'admin'){
-        Firebase Firestore.setItem('roleAktif','admin');
-        Firebase Firestore.setItem('loggedAdmin','true');
+        localStorage.setItem('roleAktif','admin');
+        localStorage.setItem('loggedAdmin','true');
 
         document.getElementById('adminLoginModalFinal').classList.add('hidden');
 
@@ -2420,9 +2417,9 @@ function showLogoutButton(){
 }
 
 function logoutFinalAccount(){
- Firebase Firestore.removeItem('loggedAdmin');
- Firebase Firestore.removeItem('loggedPenyiar');
- Firebase Firestore.removeItem('roleAktif');
+ localStorage.removeItem('loggedAdmin');
+ localStorage.removeItem('loggedPenyiar');
+ localStorage.removeItem('roleAktif');
  location.reload();
 }
 
@@ -2452,13 +2449,13 @@ function tambahMenuAkunAdmin(){
        let pass=prompt("Password Admin Baru:");
 
        if(nama && user && pass){
-          let akun=JSON.parse(Firebase Firestore.getItem('adminAccounts')||'[]');
+          let akun=JSON.parse(localStorage.getItem('adminAccounts')||'[]');
           akun.push({
              nama:nama,
              username:user,
              password:pass
           });
-          Firebase Firestore.setItem('adminAccounts',JSON.stringify(akun));
+          localStorage.setItem('adminAccounts',JSON.stringify(akun));
           alert("Akun Admin berhasil dibuat");
        }
     };
@@ -2486,12 +2483,12 @@ window.loginAdminFinal=function(){
 
 window.addEventListener('load',()=>{
 
- if(Firebase Firestore.getItem('loggedAdmin')){
+ if(localStorage.getItem('loggedAdmin')){
     showLogoutButton();
     tambahMenuAkunAdmin();
  }
 
- if(Firebase Firestore.getItem('loggedPenyiar')){
+ if(localStorage.getItem('loggedPenyiar')){
     hideAdminModeForPenyiar();
  }
 
@@ -2513,8 +2510,8 @@ window.addEventListener('load',()=>{
 <script>
 /* Hapus logout global dan tampilkan hanya setelah login penyiar */
 function logoutPenyiarOnly(){
-    Firebase Firestore.removeItem('loggedPenyiar');
-    Firebase Firestore.removeItem('roleAktif');
+    localStorage.removeItem('loggedPenyiar');
+    localStorage.removeItem('roleAktif');
     location.reload();
 }
 
@@ -2558,8 +2555,8 @@ window.addEventListener('load',()=>{
 
 <script>
 function logoutPenyiarFinal(){
-    Firebase Firestore.removeItem('loggedPenyiar');
-    Firebase Firestore.removeItem('roleAktif');
+    localStorage.removeItem('loggedPenyiar');
+    localStorage.removeItem('roleAktif');
     location.reload();
 }
 
@@ -2607,8 +2604,8 @@ window.addEventListener('load',()=>{
                 keluar.id='logoutHeaderPenyiar';
                 keluar.innerHTML='Keluar Akun';
                 keluar.onclick=function(){
-                    Firebase Firestore.removeItem('loggedPenyiar');
-                    Firebase Firestore.removeItem('roleAktif');
+                    localStorage.removeItem('loggedPenyiar');
+                    localStorage.removeItem('roleAktif');
                     location.reload();
                 };
                 keluar.style.display='inline-block';
@@ -2686,7 +2683,7 @@ button[data-pin]{
 <script>
 /* SISTEM LOGIN ADMIN + BUAT AKUN ADMIN */
 
-let daftarAdmin = JSON.parse(Firebase Firestore.getItem("daftarAdmin") || 
+let daftarAdmin = JSON.parse(localStorage.getItem("daftarAdmin") || 
 '[{"nama":"Administrator","username":"admin","password":"admin"}]');
 
 function loginAdminAkun(username,password){
@@ -2695,8 +2692,8 @@ function loginAdminAkun(username,password){
     );
 
     if(akun){
-        Firebase Firestore.setItem("loggedAdmin", JSON.stringify(akun));
-        Firebase Firestore.setItem("roleAktif","admin");
+        localStorage.setItem("loggedAdmin", JSON.stringify(akun));
+        localStorage.setItem("roleAktif","admin");
         return true;
     }
     return false;
@@ -2719,14 +2716,14 @@ function buatAkunAdminBaru(nama,username,password){
         password:password
     });
 
-    Firebase Firestore.setItem("daftarAdmin",JSON.stringify(daftarAdmin));
+    localStorage.setItem("daftarAdmin",JSON.stringify(daftarAdmin));
     alert("Akun admin berhasil dibuat");
 }
 
 /* Tambah menu di mode admin */
 window.addEventListener("load",()=>{
 
-    if(Firebase Firestore.getItem("loggedAdmin")){
+    if(localStorage.getItem("loggedAdmin")){
 
         let adminArea=document.getElementById("viewAdmin");
 
@@ -2762,7 +2759,7 @@ window.addEventListener("load",()=>{
 <template id="legacyLogoPatchesDisabled">
 <!-- FITUR ADMIN GANTI LOGO LOGIN -->
 <script>
-let logoLogin = Firebase Firestore.getItem("logoLoginRadio");
+let logoLogin = localStorage.getItem("logoLoginRadio");
 
 function terapkanLogoLogin(){
     if(!logoLogin) return;
@@ -2782,7 +2779,7 @@ function simpanLogoLogin(file){
     const reader = new FileReader();
 
     reader.onload=function(e){
-        Firebase Firestore.setItem("logoLoginRadio",e.target.result);
+        localStorage.setItem("logoLoginRadio",e.target.result);
         alert("Logo login berhasil diganti");
         location.reload();
     };
@@ -2794,7 +2791,7 @@ window.addEventListener("load",()=>{
 
     terapkanLogoLogin();
 
-    if(Firebase Firestore.getItem("loggedAdmin")){
+    if(localStorage.getItem("loggedAdmin")){
 
         const admin=document.getElementById("viewAdmin");
 
@@ -2843,7 +2840,7 @@ window.addEventListener("load",()=>{
 /* SISTEM LOGO LOGIN ADMIN - PERBAIKAN */
 
 function applySavedLoginLogo(){
-    const logo = Firebase Firestore.getItem("logoLoginRadio");
+    const logo = localStorage.getItem("logoLoginRadio");
 
     if(!logo) return;
 
@@ -2888,7 +2885,7 @@ function uploadLogoLoginAdmin(input){
 
     reader.onload=function(e){
 
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoLoginRadio",
             e.target.result
         );
@@ -2935,7 +2932,7 @@ window.addEventListener("load",()=>{
 (function(){
 
 function pasangLogoLogin(){
-    let logo = Firebase Firestore.getItem("logoLoginRadio");
+    let logo = localStorage.getItem("logoLoginRadio");
     let img = document.getElementById("loginLogoFix");
 
     if(img && logo){
@@ -2953,7 +2950,7 @@ window.simpanLogoBaru = function(input){
     let reader = new FileReader();
 
     reader.onload=function(e){
-        Firebase Firestore.setItem("logoLoginRadio",e.target.result);
+        localStorage.setItem("logoLoginRadio",e.target.result);
         alert("Logo login berhasil diganti");
         pasangLogoLogin();
     };
@@ -3072,8 +3069,8 @@ window.addEventListener("load",()=>{
 function applySingleLogoSystem(){
 
     const logo =
-    Firebase Firestore.getItem("logoStasiunRadio") ||
-    Firebase Firestore.getItem("logoLoginRadio");
+    localStorage.getItem("logoStasiunRadio") ||
+    localStorage.getItem("logoLoginRadio");
 
     if(!logo) return;
 
@@ -3107,12 +3104,12 @@ window.simpanLogoStasiunUtama=function(file){
 
     reader.onload=function(e){
 
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoStasiunRadio",
             e.target.result
         );
 
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoLoginRadio",
             e.target.result
         );
@@ -3167,7 +3164,7 @@ window.addEventListener("load",()=>{
 
 function gunakanLogoUtama(){
 
-    const logo = Firebase Firestore.getItem("logoStasiunUtama");
+    const logo = localStorage.getItem("logoStasiunUtama");
 
     if(!logo) return;
 
@@ -3200,13 +3197,13 @@ function simpanLogoUtama(file){
 
     reader.onload=function(e){
 
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoStasiunUtama",
             e.target.result
         );
 
         // sinkron semua tampilan
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoLoginRadio",
             e.target.result
         );
@@ -3224,7 +3221,7 @@ function aturUkuranLogo(nilai){
     document.documentElement.style
     .setProperty("--logo-size",nilai+"px");
 
-    Firebase Firestore.setItem(
+    localStorage.setItem(
         "ukuranLogo",
         nilai
     );
@@ -3235,7 +3232,7 @@ window.addEventListener("load",()=>{
 
     gunakanLogoUtama();
 
-    let ukuran=Firebase Firestore.getItem("ukuranLogo");
+    let ukuran=localStorage.getItem("ukuranLogo");
 
     if(ukuran){
         document.documentElement.style
@@ -3279,7 +3276,7 @@ window.addEventListener("load",()=>{
 
 <script>
 let logoSetting = JSON.parse(
- Firebase Firestore.getItem("logoSetting") ||
+ localStorage.getItem("logoSetting") ||
  '{"size":100,"zoom":100,"positionX":50,"positionY":50}'
 );
 
@@ -3316,7 +3313,7 @@ function simpanPengaturanLogo(){
     logoSetting.positionY =
     Number(document.getElementById("logoYControl").value);
 
-    Firebase Firestore.setItem(
+    localStorage.setItem(
         "logoSetting",
         JSON.stringify(logoSetting)
     );
@@ -3347,7 +3344,7 @@ window.addEventListener("load",()=>{
         </h3>
 
         <div class="logo-frame-preview">
-        <img src="${Firebase Firestore.getItem("logoStasiunRadio")||''}">
+        <img src="${localStorage.getItem("logoStasiunRadio")||''}">
         </div>
 
         <label>Ukuran Logo</label>
@@ -3406,7 +3403,7 @@ window.addEventListener("load",()=>{
 <script>
 
 let singleLogoSetting = JSON.parse(
-Firebase Firestore.getItem("singleLogoSetting") ||
+localStorage.getItem("singleLogoSetting") ||
 '{"size":100,"zoom":100,"x":50,"y":50}'
 );
 
@@ -3429,7 +3426,7 @@ function uploadLogoUtama(input){
 
     reader.onload=function(e){
 
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoStasiunUtama",
             e.target.result
         );
@@ -3458,7 +3455,7 @@ function aturLogoLangsung(){
     Number(document.getElementById("singleLogoY").value);
 
 
-    Firebase Firestore.setItem(
+    localStorage.setItem(
         "singleLogoSetting",
         JSON.stringify(singleLogoSetting)
     );
@@ -3469,7 +3466,7 @@ function aturLogoLangsung(){
 
 function tampilkanLogoUtama(){
 
- const logo=Firebase Firestore.getItem("logoStasiunUtama");
+ const logo=localStorage.getItem("logoStasiunUtama");
 
  if(!logo) return;
 
@@ -3638,7 +3635,7 @@ window.addEventListener("load",()=>{
 <script>
 
 let logoLayout = JSON.parse(
-Firebase Firestore.getItem("logoLayoutSetting") ||
+localStorage.getItem("logoLayoutSetting") ||
 '{"size":100,"zoom":100,"x":50,"y":50}'
 );
 
@@ -3670,7 +3667,7 @@ function simpanTataLetakLogo(){
     Number(document.getElementById("logoPosY").value);
 
 
-    Firebase Firestore.setItem(
+    localStorage.setItem(
         "logoLayoutSetting",
         JSON.stringify(logoLayout)
     );
@@ -3789,12 +3786,12 @@ window.addEventListener("load",()=>{
 function sinkronkanSemuaLogo(){
 
     const logoUtama =
-    Firebase Firestore.getItem("logoStasiunUtama") ||
-    Firebase Firestore.getItem("logoLoginRadio");
+    localStorage.getItem("logoStasiunUtama") ||
+    localStorage.getItem("logoLoginRadio");
 
     const setting =
     JSON.parse(
-      Firebase Firestore.getItem("logoLayoutSetting") ||
+      localStorage.getItem("logoLayoutSetting") ||
       '{"size":100,"zoom":100,"x":50,"y":50}'
     );
 
@@ -3824,10 +3821,10 @@ function sinkronkanSemuaLogo(){
 window.updateSemuaLogo = function(){
 
     const logo =
-    Firebase Firestore.getItem("logoStasiunUtama");
+    localStorage.getItem("logoStasiunUtama");
 
     if(logo){
-        Firebase Firestore.setItem(
+        localStorage.setItem(
             "logoLoginRadio",
             logo
         );
