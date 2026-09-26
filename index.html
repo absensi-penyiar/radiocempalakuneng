@@ -113,7 +113,7 @@
 <div id="startLoginGate" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md mx-4 text-center">
     <div class="brand-logo-wrap brand-logo-login-wrap">
-      <img id="startGateLogo" data-brand-logo src="logo.jpeg" alt="Logo Radio" class="brand-logo">
+      <img id="startGateLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
     </div>
     <h2 class="mt-4 text-xl font-black text-slate-900">SWARA CEMPALA KUNENG</h2>
     <p class="text-sm text-slate-500">Sistem Absensi Penyiar</p>
@@ -945,6 +945,7 @@
       updateDoc,
       doc, 
       query,
+      getDocs,
       setDoc
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { 
@@ -1355,15 +1356,26 @@
       if(m){m.classList.remove('hidden'); setTimeout(()=>m.classList.remove('opacity-0'),10);}
     };
 
-    window.loginPenyiar = function(){
+    window.loginPenyiar = async function(){
       const u=$('penyiarUsername').value.trim();
       const pw=$('penyiarPassword').value.trim();
-      const akun=JSON.parse(localStorage.getItem(AKUN_KEY)||'[]');
+
+      const akun=await getAkunPenyiar();
       const found=akun.find(a=>a.username===u && a.password===pw && a.aktif!==false);
-      if(!found){$('penyiarLoginError').classList.remove('hidden'); return;}
+
+      if(!found){
+        $('penyiarLoginError').classList.remove('hidden');
+        showToast('Username atau password salah','error');
+        return;
+      }
+
       isPenyiarLoggedIn=true;
       currentPenyiarAccount=found;
-      $('nama').value=(penyiarMasterList.find(p=>p.id===found.id)||{}).nama || '';
+
+      const dataPenyiar=penyiarMasterList.find(p=>p.id===found.id);
+      $('nama').value=dataPenyiar ? dataPenyiar.nama : (found.nama||'');
+
+      $('penyiarLoginError').classList.add('hidden');
       const m=$('penyiarLoginModal');
       m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),200);
       showToast('Login penyiar berhasil','success');
@@ -2230,12 +2242,24 @@
     checkLocationPermission();
   
 
-    const AKUN_KEY = 'akun_penyiar_rsc_v1';
-    function getAkunPenyiar(){ try{return JSON.parse(localStorage.getItem(AKUN_KEY))||[];}catch(e){return [];} }
-    function saveAkunPenyiar(a){localStorage.setItem(AKUN_KEY,JSON.stringify(a));}
+    const AKUN_COLLECTION = 'akun_penyiar';
+
+    async function getAkunPenyiar(){
+      try{
+        const snap = await getDocs(collection(db, AKUN_COLLECTION));
+        return snap.docs.map(d => d.data());
+      }catch(e){
+        console.error('Gagal mengambil akun Firebase', e);
+        return [];
+      }
+    }
+
+    async function saveAkunPenyiar(data){
+      await setDoc(doc(db, AKUN_COLLECTION, data.id), data);
+    }
     window.renderAkunPenyiar=function(){
       const box=$('akunPenyiarList'); if(!box)return;
-      const akun=getAkunPenyiar();
+      getAkunPenyiar().then(akun=>{
       box.innerHTML=penyiarMasterList.map((p,i)=>{
         let a=akun.find(x=>x.id===p.id)||{};
         return `<div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
@@ -2243,16 +2267,18 @@
         <div class="grid md:grid-cols-3 gap-2"><input id="user_${p.id}" value="${a.username||''}" placeholder="Username" class="px-3 py-2 border rounded-lg text-sm"><input id="pass_${p.id}" value="${a.password||''}" placeholder="Password" class="px-3 py-2 border rounded-lg text-sm"><button onclick="simpanAkun('${p.id}')" class="bg-brand-600 text-white rounded-lg text-xs font-bold">Simpan Akun</button></div>
         </div>`;
       }).join('');
+      });
     };
     window.buatSemuaAkunPenyiar=function(){
       renderAkunPenyiar();
       document.getElementById('akunPenyiarList').scrollIntoView({behavior:'smooth'});
       showToast('Silakan isi username dan password setiap penyiar');
     };
-    window.simpanAkun=function(id){
-      const akun=getAkunPenyiar(); const p=penyiarMasterList.find(x=>x.id===id);
+    window.simpanAkun=async function(id){
+      const p=penyiarMasterList.find(x=>x.id===id);
       const data={id:id,nama:p.nama,username:$('user_'+id).value.trim(),password:$('pass_'+id).value.trim(),aktif:true};
-      const i=akun.findIndex(x=>x.id===id); if(i>=0) akun[i]=data; else akun.push(data); saveAkunPenyiar(akun); showToast('Akun penyiar tersimpan');
+      await saveAkunPenyiar(data);
+      showToast('Akun penyiar tersimpan online Firebase');
     };
 
 </script>
