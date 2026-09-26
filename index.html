@@ -2230,7 +2230,13 @@
     checkLocationPermission();
   
 
-     const AKUN_COLLECTION = "akun_penyiar";
+     function getAkunPenyiar(){
+ return JSON.parse(localStorage.getItem(AKUN_KEY))||[];
+}
+
+function saveAkunPenyiar(a){
+ localStorage.setItem(AKUN_KEY,JSON.stringify(a));
+}
       const box=$('akunPenyiarList'); if(!box)return;
       const akun=getAkunPenyiar();
       box.innerHTML=penyiarMasterList.map((p,i)=>{
