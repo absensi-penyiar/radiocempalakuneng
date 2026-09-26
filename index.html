@@ -697,16 +697,9 @@
           </div>
 
           <div class="overflow-x-auto custom-scrollbar mt-4">
-            <table class="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr class="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider border-b border-slate-200">
-                  <th class="py-3 px-3 w-12 text-center">No</th>
-                  <th class="py-3 px-3">Nama Penyiar</th>
-                  <th class="py-3 px-3">Program Siaran Utama</th>
-                  <th class="py-3 px-3 text-center">Jumlah Sesi Siaran</th>
-                  <th class="py-3 px-3 text-center">Total Durasi Jam</th>
-                  <th class="py-3 px-3 text-center">Status</th>
-                </tr>
+            <table id="monthlyRecapTable" class="w-full text-left border-collapse min-w-[900px]">
+              <thead id="monthlyRecapHead">
+                <!-- Rendered by JS: No, Nama Penyiar, tanggal 1..akhir bulan, Total -->
               </thead>
               <tbody id="monthlyRecapBody" class="divide-y divide-slate-100 text-xs sm:text-sm">
                 <!-- Rendered by JS -->
@@ -1837,131 +1830,119 @@
         </tr>`).join('') : '<tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada sesi siaran.</td></tr>';
     };
 
-    window.renderMonthlyRecap = function() {
+    function getMonthMeta() {
       const bulan = $('rekapFilterBulan').value;
       const tahun = $('rekapFilterTahun').value;
-      const targetPrefix = `${tahun}-${bulan}`;
+      const daysInMonth = new Date(Number(tahun), Number(bulan), 0).getDate();
+      const names = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const days = Array.from({length: daysInMonth}, (_, i) => {
+        const d = i + 1;
+        const dt = new Date(Number(tahun), Number(bulan) - 1, d);
+        return { d, date: `${tahun}-${bulan}-${String(d).padStart(2,'0')}`, day: names[dt.getDay()] };
+      });
+      return { bulan, tahun, days };
+    }
 
-      const monthlyData = allAttendanceData.filter(x => x.tanggal && x.tanggal.startsWith(targetPrefix));
+    function buildMonthlyMatrix() {
+      const { days } = getMonthMeta();
+      const targetDates = new Set(days.map(x => x.date));
+      const monthlyData = allAttendanceData.filter(x => targetDates.has(x.tanggal));
+      const map = {};
 
-      const recapMap = {};
       penyiarMasterList.forEach(p => {
-        recapMap[p.nama] = {
-          nama: p.nama,
-          program: p.program || '-',
-          totalSesi: 0,
-          statusMaster: p.status
-        };
+        map[p.nama] = { nama:p.nama, program:p.program || '-', dates:{}, total:0 };
       });
 
       monthlyData.forEach(item => {
-        const nameKey = item.nama;
-        if (!recapMap[nameKey]) {
-          recapMap[nameKey] = {
-            nama: nameKey,
-            program: item.program || 'Siaran Rutin',
-            totalSesi: 0,
-            statusMaster: 'Aktif'
-          };
-        }
-        recapMap[nameKey].totalSesi += 1;
+        if (!map[item.nama]) map[item.nama] = { nama:item.nama, program:item.program || '-', dates:{}, total:0 };
+        const r = map[item.nama];
+        r.dates[item.tanggal] = (r.dates[item.tanggal] || []);
+        r.dates[item.tanggal].push('✓');
+        r.total++;
       });
 
-      const recapArray = Object.values(recapMap).sort((a, b) => b.totalSesi - a.totalSesi || a.nama.localeCompare(b.nama));
-      const tbody = $('monthlyRecapBody');
+      return { days, rows:Object.values(map).sort((a,b)=>a.nama.localeCompare(b.nama,'id')), monthlyData };
+    }
 
-      if (recapArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Tidak ada data penyiar/absensi pada bulan ini.</td></tr>`;
+    window.renderMonthlyRecap = function() {
+      const { days, rows } = buildMonthlyMatrix();
+      const head = $('monthlyRecapHead');
+      const body = $('monthlyRecapBody');
+      if (!head || !body) return;
+
+      head.innerHTML = `<tr class="bg-slate-100 text-slate-700 font-bold text-[10px] uppercase tracking-wider border-b border-slate-300">
+        <th class="py-2 px-2 text-center sticky left-0 bg-slate-100 z-10">No</th>
+        <th class="py-2 px-2 sticky left-10 bg-slate-100 z-10 min-w-[170px]">Nama Penyiar</th>
+        ${days.map(x=>`<th class="py-2 px-1 text-center min-w-[54px]" title="${x.day}, ${x.date}">${x.d}<br><span class="font-normal normal-case">${x.day.slice(0,3)}</span></th>`).join('')}
+        <th class="py-2 px-2 text-center min-w-[75px]">Total</th>
+      </tr>`;
+
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="${days.length + 4}" class="text-center py-6 text-slate-400">Belum ada data penyiar.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = recapArray.map((item, index) => {
-        const estimatedHours = item.totalSesi * 2;
-        const statusLabel = item.totalSesi >= 10 ? 'Sangat Rajin' : item.totalSesi > 0 ? 'Aktif' : 'Nihil';
-
-        return `
-          <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="py-3 px-3 text-center text-slate-400 font-medium">${index + 1}</td>
-            <td class="py-3 px-3 font-bold text-slate-900">${escapeHTML(item.nama)}</td>
-            <td class="py-3 px-3 text-slate-600">${escapeHTML(item.program)}</td>
-            <td class="py-3 px-3 text-center">
-              <span class="px-3 py-1 rounded-full text-xs font-black ${
-                item.totalSesi > 0 ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-400'
-              }">
-                ${item.totalSesi} Sesi
-              </span>
-            </td>
-            <td class="py-3 px-3 text-center font-mono font-semibold text-slate-700">
-              ~${estimatedHours} Jam
-            </td>
-            <td class="py-3 px-3 text-center">
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
-                item.totalSesi >= 10 ? 'bg-blue-100 text-blue-800' : item.totalSesi > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-500'
-              }">
-                ${statusLabel}
-              </span>
-            </td>
-          </tr>
-        `;
+      body.innerHTML = rows.map((item,index)=>{
+        const cells = days.map(day=>{
+          const entries = item.dates[day.date] || [];
+          return `<td class="border border-slate-200 p-1 text-center align-top ${entries.length ? 'bg-emerald-50' : 'bg-white'}">
+            ${entries.length ? `<div class="font-black text-emerald-700 text-lg leading-none tracking-wide">${entries.map(()=> '✓').join(' ')}</div>` : '<span class="text-slate-300">-</span>'}
+          </td>`;
+        }).join('');
+        return `<tr class="hover:bg-slate-50">
+          <td class="border border-slate-200 py-2 px-2 text-center text-slate-500 font-medium">${index+1}</td>
+          <td class="border border-slate-200 py-2 px-2 font-bold text-slate-900 sticky left-10 bg-white z-10">${escapeHTML(item.nama)}</td>
+          ${cells}
+          <td class="border border-slate-200 py-2 px-2 text-center font-black text-brand-700">${item.total}</td>
+        </tr>`;
       }).join('');
     };
 
-    renderDetailSesiPenyiar();
+    renderMonthlyRecap();
 
-    // EKSPOR EXCEL (CSV) SESUAI PERSIS DENGAN TABEL STATISTIK & REKAP
+    // EKSPOR REKAP EXCEL: format matriks seperti PDF jadwal, nama masuk pada kolom hari/tanggal absensi.
     window.exportRekapBulananCSV = function() {
-      const bulan = $('rekapFilterBulan').value;
-      const tahun = $('rekapFilterTahun').value;
-      const targetPrefix = `${tahun}-${bulan}`;
-
-      const monthlyData = allAttendanceData.filter(x => x.tanggal && x.tanggal.startsWith(targetPrefix));
-
-      const recapMap = {};
-      penyiarMasterList.forEach(p => {
-        recapMap[p.nama] = { nama: p.nama, program: p.program || '-', totalSesi: 0 };
-      });
-
-      monthlyData.forEach(item => {
-        if (!recapMap[item.nama]) {
-          recapMap[item.nama] = { nama: item.nama, program: item.program || '-', totalSesi: 0 };
-        }
-        recapMap[item.nama].totalSesi += 1;
-      });
-
-      const recapArray = Object.values(recapMap).sort((a, b) => b.totalSesi - a.totalSesi || a.nama.localeCompare(b.nama));
-
-      if (!recapArray.length) {
-        showToast('Tidak ada data rekap untuk diekspor.', 'error');
+      const { bulan, tahun, days } = getMonthMeta();
+      const { rows } = buildMonthlyMatrix();
+      if (!rows.length) {
+        showToast('Tidak ada data penyiar untuk diekspor.', 'error');
         return;
       }
 
-      // Format kolom persis seperti di Statistik & Rekap
-      const rows = [
-        ['No', 'Nama Penyiar', 'Program Siaran Utama', 'Jumlah Sesi Siaran', 'Total Durasi Jam', 'Status'],
-        ...recapArray.map((x, i) => {
-          const durasiJam = x.totalSesi * 2 + ' Jam';
-          const statusText = x.totalSesi >= 10 ? 'Sangat Rajin' : x.totalSesi > 0 ? 'Aktif' : 'Nihil';
-          return [
-            i + 1,
-            x.nama,
-            x.program,
-            x.totalSesi + ' Sesi',
-            durasiJam,
-            statusText
-          ];
-        })
-      ];
+      const bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(bulan)-1];
+      const dayNames = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-      const csvContent = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
-      const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
-      
+      const headerDays = days.map(x => `<th style="border:1px solid #000;background:#e5e7eb;text-align:center;padding:5px;min-width:55px;">${x.d}<br><span style="font-weight:normal;">${dayNames[new Date(Number(tahun),Number(bulan)-1,x.d).getDay()].slice(0,3)}</span></th>`).join('');
+      const bodyRows = rows.map((r,i) => {
+        const dayCells = days.map(day => {
+          const vals = r.dates[day.date] || [];
+          return `<td style="border:1px solid #000;text-align:center;vertical-align:top;padding:4px;white-space:pre-line;">${vals.length ? `<span style="font-size:16pt;font-weight:bold;white-space:nowrap;">${vals.map(()=> '✓').join(' ')}</span>` : '-'}</td>`;
+        }).join('');
+        return `<tr><td style="border:1px solid #000;text-align:center;padding:5px;">${i+1}</td><td style="border:1px solid #000;padding:5px;font-weight:bold;">${esc(r.nama)}</td>${dayCells}<td style="border:1px solid #000;text-align:center;padding:5px;font-weight:bold;">${r.total}</td></tr>`;
+      }).join('');
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;font-size:10pt}table{border-collapse:collapse;width:100%}th,td{border:1px solid #000}</style></head><body>
+        <table>
+          <tr><th colspan="${days.length+3}" style="font-size:16pt;border:0;text-align:center;padding:6px;">REKAPITULASI JUMLAH KEHADIRAN BULANAN</th></tr>
+          <tr><th colspan="${days.length+3}" style="font-size:12pt;border:0;text-align:center;padding:4px;">LPPL RADIO SWARA CEMPALA KUNENG KABUPATEN ACEH TIMUR</th></tr>
+          <tr><th colspan="${days.length+3}" style="font-size:11pt;border:0;text-align:center;padding:4px;">BULAN ${bulanNama.toUpperCase()} ${tahun}</th></tr>
+          <tr><td colspan="${days.length+3}" style="border:0;height:8px;"></td></tr>
+          <tr><th style="border:1px solid #000;background:#e5e7eb;">No</th><th style="border:1px solid #000;background:#e5e7eb;">Nama Penyiar</th>${headerDays}<th style="border:1px solid #000;background:#e5e7eb;">Jumlah Kehadiran</th></tr>
+          ${bodyRows}
+          <tr><td colspan="${days.length+3}" style="border:0;padding-top:10px;">Keterangan: tanda ✓ menunjukkan kehadiran penyiar pada tanggal tersebut.</td></tr>
+        </table></body></html>`;
+
+      const blob = new Blob(['\ufeff', html], {type:'application/vnd.ms-excel;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `rekap-statistik-kehadiran-penyiar-${bulan}-${tahun}.csv`;
+      link.href = url;
+      link.download = `rekap-kehadiran-bulanan-${bulanNama.toLowerCase()}-${tahun}.xls`;
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(link.href);
-
-      showToast(`Rekapitulasi bulan ${bulan}/${tahun} berhasil diekspor ke Excel!`, 'success');
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast(`Rekap ${bulanNama} ${tahun} berhasil diekspor ke Excel.`, 'success');
     };
 
     function renderAnalytics() {
