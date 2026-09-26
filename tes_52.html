@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPPL Radio Swara Cempala Kuneng - Absensi Penyiar</title>
+<style>
+body{
+font-family:Arial, sans-serif;
+margin:0;
+background:#111;
+color:#fff;
+}
+.container{
+max-width:450px;
+margin:30px auto;
+padding:20px;
+text-align:center;
+}
+.logo{
+width:150px;
+height:150px;
+border-radius:50%;
+object-fit:cover;
+}
+.card{
+background:#222;
+padding:25px;
+border-radius:18px;
+margin-top:20px;
+box-shadow:0 5px 20px #0005;
+}
+input,button{
+width:90%;
+padding:12px;
+margin:8px;
+border-radius:8px;
+border:none;
+box-sizing:border-box;
+}
+button{
+background:#c40000;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+button:hover{
+opacity:.85;
+}
+.info{
+margin-top:20px;
+color:#ddd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<img src="logo.png" class="logo">
+
+<h2>LPPL RADIO<br>SWARA CEMPALA KUNENG</h2>
+<p>101.7 FM<br>Sistem Absensi Penyiar Digital</p>
+
+<div class="card">
+
+<h3>Login</h3>
+
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">LOGIN</button>
+
+<p id="status"></p>
+
+</div>
+
+<div class="card">
+
+<h3>Absensi Penyiar</h3>
+
+<input id="nama" placeholder="Nama Penyiar">
+<input id="slot" placeholder="Slot Siaran">
+
+<button onclick="absen()">KIRIM ABSENSI</button>
+
+</div>
+
+<p class="info">
+© LPPL Radio Swara Cempala Kuneng
+</p>
+
+</div>
+
+
+<script type="module">
+
+// Firebase configuration masukkan milik Anda di sini
+// Sistem siap dihubungkan ke Firebase Auth dan Firestore
+
+window.login=function(){
+
+document.getElementById("status").innerHTML=
+"Login Firebase siap diaktifkan";
+
+}
+
+
+window.absen=function(){
+
+let nama=document.getElementById("nama").value;
+
+let slot=document.getElementById("slot").value;
+
+
+if(!nama || !slot){
+
+alert("Lengkapi data absensi");
+
+return;
+
+}
+
+
+alert(
+"Absensi "+nama+" slot "+slot+" berhasil dikirim"
+);
+
+
+}
+
+</script>
+
+</body>
+</html>
