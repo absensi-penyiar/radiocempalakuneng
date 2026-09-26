@@ -45,6 +45,43 @@
       body { background: white; color: black; }
       .card-print { border: none !important; box-shadow: none !important; }
     }
+
+    /* Satu sistem logo untuk header dan seluruh layar login. */
+    :root {
+      --brand-logo-size: 90px;
+      --brand-logo-x: 0px;
+      --brand-logo-y: 0px;
+    }
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+    .brand-logo {
+      display: block;
+      width: var(--brand-logo-size) !important;
+      height: var(--brand-logo-size) !important;
+      max-width: none !important;
+      object-fit: contain !important;
+      object-position: center !important;
+      transform: translate(var(--brand-logo-x), var(--brand-logo-y));
+      transform-origin: center;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+    .brand-logo-login-wrap { margin: 0 auto 14px; }
+    .brand-logo-header-wrap { min-width: var(--brand-logo-size); }
+    .logo-range { width: 100%; accent-color: #b5121b; }
   </style>
 
 <style id="pdf-table-print-style">
@@ -75,8 +112,8 @@
 <!-- START LOGIN GATE -->
 <div id="startLoginGate" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md mx-4 text-center">
-    <div class="w-20 h-20 mx-auto rounded-2xl bg-white border p-2 flex items-center justify-center shadow">
-      <img src="https://via.placeholder.com/150?text=LOGO" class="w-full h-full object-contain">
+    <div class="brand-logo-wrap brand-logo-login-wrap">
+      <img id="startGateLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
     </div>
     <h2 class="mt-4 text-xl font-black text-slate-900">SWARA CEMPALA KUNENG</h2>
     <p class="text-sm text-slate-500">Sistem Absensi Penyiar</p>
@@ -129,7 +166,9 @@
   <!-- Modal Login Penyiar -->
   <div id="penyiarLoginModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl mx-4 text-center">
-      <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl"><i class="fa-solid fa-microphone-lines"></i></div>
+      <div class="brand-logo-wrap brand-logo-login-wrap">
+        <img id="penyiarLoginLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
+      </div>
       <h3 class="font-extrabold text-lg">Login Akun Penyiar</h3>
       <p class="text-xs text-slate-500 mt-1">Gunakan username dan password yang dibuat oleh Admin.</p>
       <input id="penyiarUsername" class="mt-5 w-full px-3 py-2.5 rounded-xl border bg-slate-50 text-sm" placeholder="Username">
@@ -190,8 +229,8 @@
         <!-- Logo & Title -->
         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shadow-md border-2 border-brand-500 shrink-0 overflow-hidden">
-              <img id="displayLogoImg" src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="w-full h-full object-contain">
+            <div class="brand-logo-wrap brand-logo-header-wrap">
+              <img id="displayLogoImg" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -577,8 +616,8 @@
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Logo Stasiun Radio</label>
               
               <div class="flex items-center gap-4">
-                <div class="w-16 h-16 rounded-xl bg-white p-1 border border-slate-300 shrink-0 flex items-center justify-center overflow-hidden">
-                  <img id="cfgLogoPreview" src="https://via.placeholder.com/150?text=LOGO" alt="Preview Logo" class="w-full h-full object-contain">
+                <div class="w-28 min-h-28 shrink-0 flex items-center justify-center overflow-visible bg-transparent">
+                  <img id="cfgLogoPreview" src="https://via.placeholder.com/150?text=LOGO" alt="Preview Logo" class="block object-contain bg-transparent border-0 shadow-none">
                 </div>
                 
                 <div class="space-y-2 flex-grow">
@@ -588,10 +627,26 @@
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Atau Gunakan Link URL Gambar</label>
-                    <input id="cfgLogoUrl" type="url" placeholder="https://domain.com/logo.png" oninput="$('cfgLogoPreview').src = this.value || uiConfig.logoUrl" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
+                    <input id="cfgLogoUrl" type="text" placeholder="https://domain.com/logo.png" oninput="previewLogoSettings()" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
                   </div>
                 </div>
               </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-slate-200">
+                <label class="text-[11px] font-semibold text-slate-600">
+                  <span class="flex justify-between mb-1"><span>Ukuran Logo</span><b id="cfgLogoSizeValue">90 px</b></span>
+                  <input id="cfgLogoSize" type="range" min="40" max="180" step="1" value="90" oninput="previewLogoSettings()" class="logo-range">
+                </label>
+                <label class="text-[11px] font-semibold text-slate-600">
+                  <span class="flex justify-between mb-1"><span>Posisi Kiri/Kanan</span><b id="cfgLogoXValue">0 px</b></span>
+                  <input id="cfgLogoX" type="range" min="-80" max="80" step="1" value="0" oninput="previewLogoSettings()" class="logo-range">
+                </label>
+                <label class="text-[11px] font-semibold text-slate-600">
+                  <span class="flex justify-between mb-1"><span>Posisi Atas/Bawah</span><b id="cfgLogoYValue">0 px</b></span>
+                  <input id="cfgLogoY" type="range" min="-60" max="60" step="1" value="0" oninput="previewLogoSettings()" class="logo-range">
+                </label>
+              </div>
+              <p class="text-[11px] text-slate-500">Perubahan ukuran dan posisi dapat dilihat langsung pada pratinjau. Logo tampil transparan tanpa bingkai.</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -917,6 +972,9 @@
 
     const DEFAULT_UI_CONFIG = {
       logoUrl: 'https://via.placeholder.com/150?text=LOGO',
+      logoSize: 90,
+      logoOffsetX: 0,
+      logoOffsetY: 0,
       radioTitle: 'SWARA CEMPALA KUNENG',
       radioSubtitle: 'LPPL Radio Swara Cempala Kuneng • Kab. Aceh Timur',
       formTitle: 'Form Absensi Penyiar',
@@ -991,6 +1049,14 @@
       const savedUI = localStorage.getItem(UI_CONFIG_KEY);
       if (savedUI) {
         try { uiConfig = { ...DEFAULT_UI_CONFIG, ...JSON.parse(savedUI) }; } catch(e) { uiConfig = { ...DEFAULT_UI_CONFIG }; }
+      }
+
+      // Ambil logo dari versi lama jika pengguna pernah mengunggahnya melalui patch terdahulu.
+      const legacyLogo = localStorage.getItem('logoStasiunUtama')
+        || localStorage.getItem('logoStasiunRadio')
+        || localStorage.getItem('logoLoginRadio');
+      if (legacyLogo && (!uiConfig.logoUrl || uiConfig.logoUrl.includes('via.placeholder.com'))) {
+        uiConfig.logoUrl = legacyLogo;
       }
 
       const savedLoc = localStorage.getItem(LOCATION_CONFIG_KEY);
@@ -1686,12 +1752,42 @@
         const base64Img = evt.target.result;
         $('cfgLogoPreview').src = base64Img;
         $('cfgLogoUrl').value = base64Img;
+        previewLogoSettings();
       };
       reader.readAsDataURL(file);
     };
 
+    function applyLogoLayout(config = uiConfig) {
+      const size = Math.min(180, Math.max(40, Number(config.logoSize) || 90));
+      const x = Math.min(80, Math.max(-80, Number(config.logoOffsetX) || 0));
+      const y = Math.min(60, Math.max(-60, Number(config.logoOffsetY) || 0));
+      document.documentElement.style.setProperty('--brand-logo-size', `${size}px`);
+      document.documentElement.style.setProperty('--brand-logo-x', `${x}px`);
+      document.documentElement.style.setProperty('--brand-logo-y', `${y}px`);
+    }
+
+    window.previewLogoSettings = function() {
+      const preview = $('cfgLogoPreview');
+      const size = Number($('cfgLogoSize')?.value || uiConfig.logoSize || 90);
+      const x = Number($('cfgLogoX')?.value || 0);
+      const y = Number($('cfgLogoY')?.value || 0);
+      const source = $('cfgLogoUrl')?.value.trim() || uiConfig.logoUrl || DEFAULT_UI_CONFIG.logoUrl;
+
+      if (preview) {
+        preview.src = source;
+        preview.style.width = `${size}px`;
+        preview.style.height = `${size}px`;
+        preview.style.transform = `translate(${x}px, ${y}px)`;
+      }
+      if ($('cfgLogoSizeValue')) $('cfgLogoSizeValue').textContent = `${size} px`;
+      if ($('cfgLogoXValue')) $('cfgLogoXValue').textContent = `${x} px`;
+      if ($('cfgLogoYValue')) $('cfgLogoYValue').textContent = `${y} px`;
+    };
+
     function renderUIConfig() {
-      if ($('displayLogoImg')) $('displayLogoImg').src = uiConfig.logoUrl || 'https://via.placeholder.com/150?text=LOGO';
+      const activeLogo = uiConfig.logoUrl || DEFAULT_UI_CONFIG.logoUrl;
+      document.querySelectorAll('[data-brand-logo]').forEach(img => { img.src = activeLogo; });
+      applyLogoLayout(uiConfig);
       if ($('displayRadioTitle')) $('displayRadioTitle').textContent = uiConfig.radioTitle || 'SWARA CEMPALA KUNENG';
       if ($('displayRadioSubtitle')) $('displayRadioSubtitle').textContent = uiConfig.radioSubtitle || 'LPPL Radio Swara Cempala Kuneng';
       if ($('displayFooterTitle')) $('displayFooterTitle').textContent = uiConfig.radioSubtitle || 'LPPL Radio Swara Cempala Kuneng';
@@ -1731,6 +1827,10 @@
 
       if ($('cfgLogoUrl')) $('cfgLogoUrl').value = uiConfig.logoUrl;
       if ($('cfgLogoPreview')) $('cfgLogoPreview').src = uiConfig.logoUrl || 'https://via.placeholder.com/150?text=LOGO';
+      if ($('cfgLogoSize')) $('cfgLogoSize').value = uiConfig.logoSize ?? 90;
+      if ($('cfgLogoX')) $('cfgLogoX').value = uiConfig.logoOffsetX ?? 0;
+      if ($('cfgLogoY')) $('cfgLogoY').value = uiConfig.logoOffsetY ?? 0;
+      previewLogoSettings();
       if ($('cfgRadioTitle')) $('cfgRadioTitle').value = uiConfig.radioTitle;
       if ($('cfgRadioSubtitle')) $('cfgRadioSubtitle').value = uiConfig.radioSubtitle;
       if ($('cfgFormTitle')) $('cfgFormTitle').value = uiConfig.formTitle;
@@ -1745,6 +1845,9 @@
 
       uiConfig = {
         logoUrl: $('cfgLogoUrl').value.trim() || 'https://via.placeholder.com/150?text=LOGO',
+        logoSize: Number($('cfgLogoSize').value) || 90,
+        logoOffsetX: Number($('cfgLogoX').value) || 0,
+        logoOffsetY: Number($('cfgLogoY').value) || 0,
         radioTitle: $('cfgRadioTitle').value.trim() || 'SWARA CEMPALA KUNENG',
         radioSubtitle: $('cfgRadioSubtitle').value.trim() || '',
         formTitle: $('cfgFormTitle').value.trim() || 'Form Absensi Penyiar',
@@ -2230,8 +2333,8 @@ window.addEventListener('load',()=>{
 <!-- LOGIN AKUN ADMIN FINAL -->
 <div id="adminLoginModalFinal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[120] flex items-center justify-center hidden">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm mx-4 text-center">
-    <div class="w-16 h-16 mx-auto rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-3xl">
-      <i class="fa-solid fa-user-shield"></i>
+    <div class="brand-logo-wrap brand-logo-login-wrap">
+      <img id="adminLoginLogo" data-brand-logo src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="brand-logo">
     </div>
 
     <h2 class="mt-4 text-xl font-black text-slate-900">Login Akun Admin</h2>
@@ -2652,6 +2755,8 @@ window.addEventListener("load",()=>{
 </script>
 
 
+<!-- Patch logo lama dinonaktifkan; dipertahankan hanya untuk kompatibilitas arsip. -->
+<template id="legacyLogoPatchesDisabled">
 <!-- FITUR ADMIN GANTI LOGO LOGIN -->
 <script>
 let logoLogin = localStorage.getItem("logoLoginRadio");
@@ -3734,6 +3839,7 @@ window.addEventListener("load",()=>{
 });
 
 </script>
+</template>
 
 </body>
 </html>
