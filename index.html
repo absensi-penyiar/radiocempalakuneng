@@ -2230,10 +2230,7 @@
     checkLocationPermission();
   
 
-    const AKUN_KEY = 'akun_penyiar_rsc_v1';
-    function getAkunPenyiar(){ try{return JSON.parse(localStorage.getItem(AKUN_KEY))||[];}catch(e){return [];} }
-    function saveAkunPenyiar(a){localStorage.setItem(AKUN_KEY,JSON.stringify(a));}
-    window.renderAkunPenyiar=function(){
+     const AKUN_COLLECTION = "akun_penyiar";
       const box=$('akunPenyiarList'); if(!box)return;
       const akun=getAkunPenyiar();
       box.innerHTML=penyiarMasterList.map((p,i)=>{
