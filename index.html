@@ -1128,6 +1128,11 @@
       applyRoleChange(role);
     };
 
+    window.activateVerifiedAdmin = function() {
+      isAdminLoggedIn = true;
+      applyRoleChange('admin');
+    };
+
     window.toggleRoleModal = function() {
       if (currentRole === 'penyiar') {
         setRole('admin');
@@ -1500,6 +1505,64 @@
           </td>
         </tr>
       `).join('');
+    };
+
+    function adminCanManageAttendance() {
+      return currentRole === 'admin' &&
+        (isAdminLoggedIn || localStorage.getItem('loggedAdmin') === 'true');
+    }
+
+    async function removeAttendanceRecords(records) {
+      if (!adminCanManageAttendance()) {
+        showToast('Silakan login sebagai admin terlebih dahulu.', 'error');
+        return;
+      }
+      try {
+        for (const record of records) {
+          if (record.id && !String(record.id).startsWith('local_') && currentUser) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'absensi_penyiar', record.id));
+          }
+        }
+        const removed = new Set(records.map(record => String(record.id)));
+        allAttendanceData = allAttendanceData.filter(record => !removed.has(String(record.id)));
+        localStorage.setItem(LOCAL_KEY, JSON.stringify(allAttendanceData));
+        renderAll();
+        showToast(`${records.length} data absensi berhasil dihapus.`, 'success');
+      } catch (error) {
+        console.error('Gagal menghapus absensi:', error);
+        showToast('Gagal menghapus absensi. Periksa izin penyimpanan data.', 'error');
+      }
+    }
+
+    window.hapusSatuData = function(id) {
+      if (!adminCanManageAttendance()) return showToast('Akses admin diperlukan.', 'error');
+      const record = allAttendanceData.find(item => String(item.id) === String(id));
+      if (!record) return showToast('Data absensi tidak ditemukan.', 'error');
+      showModal({
+        title: 'Hapus Absensi Penyiar',
+        message: `Hapus absensi ${record.nama} tanggal ${record.tanggal}? Tindakan ini tidak dapat dibatalkan.`,
+        onConfirm: () => { void removeAttendanceRecords([record]); }
+      });
+    };
+
+    window.confirmHapusSemua = function() {
+      if (!adminCanManageAttendance()) return showToast('Akses admin diperlukan.', 'error');
+      const tanggal = $('adminFilterDate').value || getTodayString();
+      const records = allAttendanceData.filter(item => item.tanggal === tanggal);
+      if (!records.length) return showToast('Tidak ada absensi pada tanggal tersebut.', 'error');
+      showModal({
+        title: 'Hapus Semua Absensi',
+        message: `Hapus seluruh ${records.length} absensi tanggal ${tanggal}? Tindakan ini tidak dapat dibatalkan.`,
+        onConfirm: () => { void removeAttendanceRecords(records); }
+      });
+    };
+
+    window.printReportPDF = function() {
+      if (!adminCanManageAttendance()) return showToast('Akses admin diperlukan.', 'error');
+      const tanggal = $('adminFilterDate').value || getTodayString();
+      $('printDateText').textContent = `Tanggal: ${tanggal}`;
+      renderAdminTable();
+      window.print();
     };
 
     function renderMasterPenyiarTable() {
@@ -2225,8 +2288,8 @@ function loginAdminFinal(){
 
         document.getElementById('adminLoginModalFinal').classList.add('hidden');
 
-        if(typeof setRole === 'function'){
-            setRole('admin');
+        if(typeof activateVerifiedAdmin === 'function'){
+            activateVerifiedAdmin();
         }
 
         const adminNav = document.getElementById('adminNavBar');
