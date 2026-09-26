@@ -3695,5 +3695,77 @@ window.addEventListener("load",()=>{
 
 </script>
 
+
+<script id="penyiar-login-safe-session">
+(function(){
+
+const KEY="RSC_SAFE_LOGIN";
+const MAX_IDLE=60*60*1000;
+
+function saveRoleSession(){
+    if(typeof isPenyiarLoggedIn!=="undefined" && isPenyiarLoggedIn){
+        localStorage.setItem(KEY,JSON.stringify({
+            role:"penyiar",
+            time:Date.now()
+        }));
+    }
+    if(typeof isAdminLoggedIn!=="undefined" && isAdminLoggedIn){
+        localStorage.setItem(KEY,JSON.stringify({
+            role:"admin",
+            time:Date.now()
+        }));
+    }
+}
+
+function touch(){
+    let s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(s){
+        s.time=Date.now();
+        localStorage.setItem(KEY,JSON.stringify(s));
+    }
+}
+
+function restore(){
+    let s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(!s) return;
+
+    if(Date.now()-s.time>MAX_IDLE){
+        localStorage.removeItem(KEY);
+        return;
+    }
+
+    // hanya restore status, tidak menjalankan login palsu
+    if(s.role==="penyiar"){
+        isPenyiarLoggedIn=true;
+        const akun=JSON.parse(localStorage.getItem(AKUN_KEY)||"[]");
+        if(akun.length && !currentPenyiarAccount){
+            currentPenyiarAccount=akun[0];
+        }
+    }
+
+    if(s.role==="admin"){
+        isAdminLoggedIn=true;
+    }
+}
+
+document.addEventListener("click",function(){
+    saveRoleSession();
+    touch();
+});
+document.addEventListener("keydown",touch);
+document.addEventListener("mousemove",touch);
+
+setInterval(function(){
+    let s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(s && Date.now()-s.time>MAX_IDLE){
+        localStorage.removeItem(KEY);
+        location.reload();
+    }
+},60000);
+
+window.addEventListener("load",restore);
+
+})();
+</script>
 </body>
 </html>
