@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google FonFts -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <script>
@@ -46,13 +46,37 @@
       .card-print { border: none !important; box-shadow: none !important; }
     }
   </style>
+
+<style id="pdf-table-print-style">
+@media print {
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 11px !important;
+  }
+  th, td {
+    border: 1px solid #000 !important;
+    padding: 6px !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+  }
+  th {
+    background: #e5e7eb !important;
+    font-weight: 700 !important;
+  }
+  .print-only {
+    display:block !important;
+  }
+}
+</style>
+
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 <!-- START LOGIN GATE -->
 <div id="startLoginGate" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center">
   <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md mx-4 text-center">
     <div class="w-20 h-20 mx-auto rounded-2xl bg-white border p-2 flex items-center justify-center shadow">
-      <img id="loginLogoImg" src="logo.jpeg" alt="Logo Radio" class="w-full h-full object-contain">
+      <img src="https://via.placeholder.com/150?text=LOGO" class="w-full h-full object-contain">
     </div>
     <h2 class="mt-4 text-xl font-black text-slate-900">SWARA CEMPALA KUNENG</h2>
     <p class="text-sm text-slate-500">Sistem Absensi Penyiar</p>
@@ -167,7 +191,8 @@
         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-2xl bg-white p-1 flex items-center justify-center shadow-md border-2 border-brand-500 shrink-0 overflow-hidden">
-             <img id="headerLogoImg" src="logo.jpeg" alt="Logo Radio" class="w-full h-full object-contain">
+              <img id="displayLogoImg" src="https://via.placeholder.com/150?text=LOGO" alt="Logo Radio" class="w-full h-full object-contain">
+            </div>
             <div>
               <div class="flex items-center gap-2">
                 <h1 id="displayRadioTitle" class="text-base sm:text-xl font-extrabold tracking-tight leading-none">SWARA CEMPALA KUNENG</h1>
@@ -345,23 +370,21 @@
             </div>
 
             <div id="fieldProgramGroup">
-              <label for="shift" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Program / Acara Siaran</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                  <i class="fa-solid fa-radio text-sm"></i>
-                </span>
-                <input id="shift" type="text" placeholder="Contoh: Berita Pagi Aceh Timur" list="programPresets"
-                  class="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600 transition">
-                <datalist id="programPresets">
-                  <option value="Swara Pagi Aceh Timur"></option>
-                  <option value="Warta Berita & Informasi"></option>
-                  <option value="Dendang Cempala Kuneng"></option>
-                  <option value="Nuansa Islami & Tausiyah"></option>
-                  <option value="Request Musik Hits"></option>
-                  <option value="Dialog Interaktif Pemkab"></option>
-                  <option value="Suara Pemuda Aceh"></option>
-                  <option value="Swara Malam & Santai"></option>
-                </datalist>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mode Jam Siaran</label>
+              <select id="jamMode" onchange="toggleJamMode()"
+                class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+                <option value="sendiri">Masuk Jam Saya Sendiri</option>
+                <option value="oranglain">Ganti Jam Penyiar Lain</option>
+              </select>
+
+              <div id="jamOrangLainBox" class="hidden mt-3">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Penyiar yang Digantikan</label>
+                <input id="shift" type="text" placeholder="Nama penyiar yang digantikan"
+                  class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm">
+              </div>
+
+              <div id="jamSendiriBox" class="mt-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800">
+                Mode aktif: Menggunakan jam siaran sendiri
               </div>
             </div>
 
@@ -461,7 +484,7 @@
                 <i class="fa-solid fa-file-csv"></i> Ekspor CSV
               </button>
 
-              <button onclick="printReport()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+              <button onclick="printReportPDF()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-print"></i> Cetak
               </button>
 
@@ -555,7 +578,7 @@
               
               <div class="flex items-center gap-4">
                 <div class="w-16 h-16 rounded-xl bg-white p-1 border border-slate-300 shrink-0 flex items-center justify-center overflow-hidden">
-                  <img id="cfgLogoPreview" src="logo.jpeg" alt="Preview Logo" class="w-full h-full object-contain">
+                  <img id="cfgLogoPreview" src="https://via.placeholder.com/150?text=LOGO" alt="Preview Logo" class="w-full h-full object-contain">
                 </div>
                 
                 <div class="space-y-2 flex-grow">
@@ -565,7 +588,7 @@
                   </div>
                   <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Atau Gunakan Link URL Gambar</label>
-                    <input id="cfgLogoUrl" type="url" placeholder="https://domain.com/logo.jpg" oninput="$('cfgLogoPreview').src = this.value || uiConfig.logoUrl" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
+                    <input id="cfgLogoUrl" type="url" placeholder="https://domain.com/logo.png" oninput="$('cfgLogoPreview').src = this.value || uiConfig.logoUrl" class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-600">
                   </div>
                 </div>
               </div>
@@ -1282,6 +1305,13 @@
       showToast('Login penyiar berhasil','success');
     };
 
+
+    window.toggleJamMode = function(){
+      const mode = $('jamMode').value;
+      $('jamOrangLainBox').classList.toggle('hidden', mode !== 'oranglain');
+      $('jamSendiriBox').classList.toggle('hidden', mode === 'oranglain');
+    };
+
     // FORM SUBMIT DENGAN VALIDASI MASTER DATA PENYIAR & ZONA LOKASI
     window.handleFormSubmit = async function(event) {
       event.preventDefault();
@@ -1294,7 +1324,8 @@
 
       const nama = $('nama').value.trim();
       const tanggal = $('tanggal').value;
-      const program = $('shift').value.trim();
+      const modeJam = $('jamMode') ? $('jamMode').value : 'sendiri';
+      const program = modeJam === 'oranglain' ? ('Menggantikan: ' + $('shift').value.trim()) : 'Jam Sendiri';
       const slot = Number($('slotSelect').value);
       const keterangan = $('keterangan').value.trim();
 
@@ -3659,20 +3690,6 @@ window.addEventListener("load",()=>{
 });
 
 </script>
-<script>
-window.addEventListener("DOMContentLoaded", function(){
 
-const logoPath = "logo.jpeg";
-
-const logoLogin = document.getElementById("loginLogoImg");
-const logoHeader = document.getElementById("headerLogoImg");
-const logoPreview = document.getElementById("cfgLogoPreview");
-
-if(logoLogin) logoLogin.src = logoPath;
-if(logoHeader) logoHeader.src = logoPath;
-if(logoPreview) logoPreview.src = logoPath;
-
-});
-</script>
 </body>
 </html>
