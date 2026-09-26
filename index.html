@@ -978,8 +978,6 @@
     const SLOT_KEY = 'slot_siaran_rsc_v3';
     const UI_CONFIG_KEY = 'ui_config_rsc_v3';
     const LOCATION_CONFIG_KEY = 'location_config_rsc_v3';
-    const SESSION_KEY = 'rsc_login_session_v1';
-    const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 jam
 
     const $ = id => document.getElementById(id);
 
@@ -1018,7 +1016,6 @@
       }
     }
     loadLocalConfigs();
-    restoreLoginSession();
 
     $('tanggal').value = getTodayString();
     $('adminFilterDate').value = getTodayString();
@@ -1302,7 +1299,6 @@
       if(!found){$('penyiarLoginError').classList.remove('hidden'); return;}
       isPenyiarLoggedIn=true;
       currentPenyiarAccount=found;
-      saveLoginSession();
       $('nama').value=(penyiarMasterList.find(p=>p.id===found.id)||{}).nama || '';
       const m=$('penyiarLoginModal');
       m.classList.add('opacity-0'); setTimeout(()=>m.classList.add('hidden'),200);
